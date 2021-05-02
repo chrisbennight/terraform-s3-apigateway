@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<!-- saved from url=(0073)https://storage.googleapis.com/tfjs-examples/addition-rnn/dist/index.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style id="vega-tooltip-style">#vg-tooltip-element {
+  visibility: hidden;
+  padding: 8px;
+  position: fixed;
+  z-index: 1000;
+  font-family: sans-serif;
+  font-size: 11px;
+  border-radius: 3px;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  /* The default theme is the light theme. */
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid #d9d9d9;
+  color: black; }
+  #vg-tooltip-element.visible {
+    visibility: visible; }
+  #vg-tooltip-element h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 13px; }
+  #vg-tooltip-element table {
+    border-spacing: 0; }
+  #vg-tooltip-element td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-top: 2px;
+    padding-bottom: 2px; }
+    #vg-tooltip-element td.key {
+      color: #808080;
+      max-width: 150px;
+      text-align: right;
+      padding-right: 4px; }
+    #vg-tooltip-element td.value {
+      display: block;
+      max-width: 300px;
+      max-height: 7em;
+      text-align: left; }
+  #vg-tooltip-element.dark-theme {
+    background-color: rgba(32, 32, 32, 0.9);
+    border: 1px solid #f5f5f5;
+    color: white; }
+    #vg-tooltip-element.dark-theme td.key {
+      color: #bfbfbf; }
+  #vg-tooltip-element.light-theme {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #d9d9d9;
+    color: black; }
+    #vg-tooltip-element.light-theme td.key {
+      color: #808080; }
+</style>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="./index_files/tfjs-examples.c3b5157d.css">
+<style>.setting {
+    padding: 6px;
+  }
+
+  #trainModel {
+    margin-top: 12px;
+  }
+
+  .setting-label {
+    display: inline-block;
+    width: 12em;
+  }
+
+  .answer-correct {
+    color: green;
+  }
+
+  .answer-wrong {
+    color: red;
+  }</style><style type="text/css" data-glamor=""></style></head>
+
+
+
+<body style="cursor: default;">
+  <div class="tfjs-example-container centered-container">
+    <section class="title-area">
+      <h1>TensorFlow.js: Addition RNN</h1>
+      <p class="subtitle">Train a model to learn addition by example</p>
+    </section>
+    <section>
+      <p class="section-head">Description</p>
+      <p>
+        This example trains a <a href="https://en.wikipedia.org/wiki/Recurrent_neural_network">Recurrent Neural Network</a>
+        to do addition without explicitly defining the addition operator. Instead
+        we feed it examples of sums and let it learn from that.
+      </p>
+      <p>
+        Given a <span class="in-type">string</span> like
+        <span class="in-example">3 + 4</span>, it will learn to output
+        a <span class="out-type">number</span>
+        like <span class="out-example">7</span>.
+      </p>
+      <p>
+        This example generates it's own training data programatically.
+      </p>
+    </section>
+
+    <div>
+      <section>
+        <p class="section-head">Instructions</p>
+        <p>
+          Click the "Train Model" to start the model training button. You can edit the
+          parameters used to train the model as well.
+        </p>
+      </section>
+
+      <div class="controls with-rows">
+        <div class="settings">
+          <div class="setting">
+            <span class="setting-label">Digits:</span>
+            <input id="digits" value="2">
+          </div>
+          <div class="setting">
+            <span class="setting-label">Training Size:</span>
+            <input id="trainingSize" value="5000">
+          </div>
+          <div class="setting">
+            <span class="setting-label">RNN Type:</span>
+            <select id="rnnType">
+              <option value="SimpleRNN">SimpleRNN</option>
+              <option value="GRU">GRU</option>
+              <option value="LSTM">LSTM</option>
+            </select>
+          </div>
+          <div class="setting">
+            <span class="setting-label">RNN Layers:</span>
+            <input id="rnnLayers" value="1">
+          </div>
+          <div class="setting">
+            <span class="setting-label">RNN Hidden Layer Size:</span>
+            <input id="rnnLayerSize" value="128">
+          </div>
+          <div class="setting">
+            <span class="setting-label">Batch Size:</span>
+            <input id="batchSize" value="128">
+          </div>
+          <div class="setting">
+            <span class="setting-label">Train Iterations:</span>
+            <input id="trainIterations" value="100">
+          </div>
+          <div class="setting">
+            <span class="setting-label"># of test examples:</span>
+            <input id="numTestExamples" value="20">
+          </div>
+        </div>
+
+        <div>
+          <span>
+            <button class="btn-primary" id="trainModel">Train Model</button>
+          </span>
+        </div>
+      </div>
+
+
+      <section>
+        <p class="section-head">Training Progress</p>
+        <p id="trainStatus">Iteration 42 of 100: Model fit time 0.651420 (seconds)</p>
+        <div class="with-cols">
+          <div id="lossChart" class="vega-embed"><canvas width="840" height="600" class="marks" style="width: 420px; height: 300px;"></canvas><div class="vega-bindings"></div></div>
+          <div id="accuracyChart" class="vega-embed"><canvas width="840" height="600" class="marks" style="width: 420px; height: 300px;"></canvas><div class="vega-bindings"></div></div>
+          <!-- <div id="examplesPerSecCanvas"></div> -->
+        </div>
+      </section>
+
+      <section>
+        <p class="section-head">Test Examples</p>
+        <p id="testExamples"><div class="answer-correct">55+25 = 80 </div>
+<div class="answer-correct">32+95 = 127</div>
+<div class="answer-wrong">3+86  = 99 </div>
+<div class="answer-correct">40+51 = 91 </div>
+<div class="answer-correct">20+27 = 47 </div>
+<div class="answer-correct">71+34 = 105</div>
+<div class="answer-wrong">22+19 = 31 </div>
+<div class="answer-correct">91+4  = 95 </div>
+<div class="answer-correct">27+90 = 117</div>
+<div class="answer-correct">33+60 = 93 </div>
+<div class="answer-correct">19+53 = 72 </div>
+<div class="answer-correct">64+31 = 95 </div>
+<div class="answer-wrong">57+18 = 76 </div>
+<div class="answer-wrong">40+29 = 79 </div>
+<div class="answer-correct">36+82 = 118</div>
+<div class="answer-wrong">8+29  = 28 </div>
+<div class="answer-wrong">5+53  = 68 </div>
+<div class="answer-wrong">36+93 = 139</div>
+<div class="answer-correct">31+41 = 72 </div>
+<div class="answer-correct">91+38 = 129</div></p>
+      </section>
+
+
+
+
+    </div>
+  </div>
+
+
+
+<script src="./index_files/addition-rnn.fe18a0ff.js"></script>
+<div id="vg-tooltip-element" class="vg-tooltip"></div></body></html>

@@ -1,0 +1,10 @@
+certs/*
+config/*
+work/*
+logs/*
+venv/*
+*.tfstate*
+.terraform*
+.idea*
+*.tfvars
+
